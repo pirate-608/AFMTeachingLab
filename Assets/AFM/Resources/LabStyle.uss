@@ -1,0 +1,54 @@
+.lab { position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 18px; color: rgb(220,232,237); font-size: 14px; background-color: rgb(7,18,28); }
+.header { height: 76px; flex-shrink: 0; flex-direction: row; justify-content: space-between; background-color: rgb(7,18,28); }
+.title { font-size: 28px; height: 42px; -unity-font-style: bold; color: rgb(236,245,247); }
+.subtitle { font-size: 13px; color: rgb(139,166,180); margin-top: 4px; }
+.header-right { align-items: flex-end; padding-top: 6px; }
+.eyebrow { font-size: 11px; letter-spacing: 2px; color: rgb(83,210,192); }
+.navigation { height: 46px; flex-shrink: 0; flex-direction: row; margin-top: 8px; margin-bottom: 12px; background-color: rgb(7,18,28); }
+.nav { flex-grow: 1; margin: 0 8px 0 0; border-radius: 5px; border-width: 1px; border-color: rgb(35,57,72); background-color: rgb(12,29,42); color: rgb(152,178,191); font-size: 16px; }
+.nav.selected { background-color: rgb(20,62,66); border-color: rgb(63,186,169); color: rgb(202,252,241); }
+.body { flex-grow: 1; flex-direction: row; min-height: 320px; margin-bottom: 12px; }
+.viewport { flex-grow: 1; margin-right: 12px; border-width: 1px; border-color: rgb(33,53,66); border-radius: 8px; overflow: hidden; }
+.scene-image { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+.readout-box { flex-shrink: 0; border-top-width: 1px; border-top-color: rgb(42,70,83); margin-top: 10px; padding-top: 3px; }
+.mode-label { position: absolute; left: 20px; top: 15px; font-size: 17px; color: rgb(183,211,220); }
+.part-label { position: absolute; font-size: 11px; padding: 2px 6px; color: rgb(167,207,220); background-color: rgba(9,25,35,0.82); border-radius: 3px; }
+.annotation { position: absolute; left: 20px; bottom: 16px; }
+.annotation-text { color: rgb(127,157,173); font-size: 11px; margin-top: 3px; }
+.sidebar { width: 338px; padding: 15px; background-color: rgb(12,29,42); border-width: 1px; border-color: rgb(33,53,66); border-radius: 8px; }
+.section-title { font-size: 18px; color: rgb(231,241,245); -unity-font-style: bold; margin-bottom: 8px; }
+.body-copy { white-space: normal; color: rgb(151,178,190); font-size: 12px; margin-bottom: 14px; }
+.slider-wrap { margin-bottom: 11px; }
+.slider-label { flex-direction: row; justify-content: space-between; margin-bottom: 5px; }
+.slider-title { font-size: 13px; color: rgb(183,205,217); }
+.slider-value { font-size: 13px; color: rgb(100,227,206); }
+.unity-base-slider { height: 19px; margin-left: 0; margin-right: 0; }
+.unity-base-slider__tracker { background-color: rgb(42,69,84); height: 4px; }
+.unity-base-slider__dragger { background-color: rgb(72,209,186); border-color: rgb(130,238,222); }
+.unity-toggle { margin-top: 5px; margin-bottom: 10px; color: rgb(189,210,219); }
+.unity-toggle__input { background-color: rgb(18,43,57); }
+.unity-base-field__label { min-width: 45px; color: rgb(182,204,215); }
+.unity-base-popup-field__input { background-color: rgb(20,43,56); color: rgb(218,236,242); }
+.button-row { flex-direction: row; margin-top: 5px; margin-bottom: 10px; }
+.primary, .secondary, .preset { min-height: 32px; margin: 3px 4px 3px 0; border-radius: 4px; border-width: 1px; font-size: 12px; }
+.primary { background-color: rgb(29,104,96); border-color: rgb(57,158,141); color: rgb(230,253,246); flex-grow: 1; }
+.secondary { background-color: rgb(23,44,59); border-color: rgb(46,72,87); color: rgb(182,208,219); flex-grow: 1; }
+.preset-grid { flex-direction: row; flex-wrap: wrap; margin-top: 8px; margin-bottom: 8px; }
+.preset { width: 47%; background-color: rgb(24,52,66); border-color: rgb(51,87,100); color: rgb(181,223,224); }
+Button:hover { border-color: rgb(95,211,196); }
+Button:focus { border-color: rgb(222,239,210); }
+.status { white-space: normal; margin-top: 8px; margin-bottom: 10px; font-size: 12px; color: rgb(99,223,190); }
+.readings { font-size: 15px; white-space: normal; color: rgb(226,238,241); margin-bottom: 16px; }
+.tiny { white-space: normal; color: rgb(126,154,170); font-size: 10px; }
+.plots { height: 232px; flex-shrink: 0; flex-direction: row; }
+.plot-card { flex-grow: 1; flex-basis: 0; margin-right: 10px; padding: 12px; background-color: rgb(12,29,42); border-width: 1px; border-color: rgb(33,53,66); border-radius: 6px; }
+.small-title { font-size: 14px; color: rgb(207,228,235); margin-bottom: 6px; }
+.plot-caption { font-size: 10px; color: rgb(135,166,181); }
+.explanation { white-space: normal; font-size: 12px; margin-top: 9px; color: rgb(170,197,209); }
+.map { flex-grow: 1; min-height: 100px; margin-bottom: 5px; }
+.profile-box { position: absolute; left: 12px; right: 12px; bottom: 8px; height: 126px; padding: 9px; background-color: rgb(10,25,36); flex-direction: row; }
+.profile-pane { flex-grow: 1; flex-basis: 0; margin-right: 10px; }
+.history-toggle { height: 20px; font-size: 11px; margin: 0; border-width: 0; background-color: rgb(10,25,36); color: rgb(174,211,220); }
+.profile-box .small-title { font-size: 11px; }
+.footer { height: 32px; flex-shrink: 0; flex-direction: row; justify-content: space-between; padding-top: 6px; background-color: rgb(7,18,28); }
+.footer-text { font-size: 10px; color: rgb(110,142,159); }

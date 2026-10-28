@@ -1,0 +1,14 @@
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\bin\Release\net10.0\CoreChecks.exe
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\bin\Release\net10.0\CoreChecks.deps.json
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\bin\Release\net10.0\CoreChecks.runtimeconfig.json
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\bin\Release\net10.0\CoreChecks.dll
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\bin\Release\net10.0\CoreChecks.pdb
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\obj\Release\net10.0\CoreChecks.GeneratedMSBuildEditorConfig.editorconfig
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\obj\Release\net10.0\CoreChecks.AssemblyInfoInputs.cache
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\obj\Release\net10.0\CoreChecks.AssemblyInfo.cs
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\obj\Release\net10.0\CoreChecks.csproj.CoreCompileInputs.cache
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\obj\Release\net10.0\CoreChecks.dll
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\obj\Release\net10.0\refint\CoreChecks.dll
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\obj\Release\net10.0\CoreChecks.pdb
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\obj\Release\net10.0\CoreChecks.genruntimeconfig.cache
+E:\UnityProjects\AFMTeachingLab\Tools\CoreChecks\obj\Release\net10.0\ref\CoreChecks.dll

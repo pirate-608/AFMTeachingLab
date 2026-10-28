@@ -1,0 +1,150 @@
+{
+  "utc": "2026-10-28T03:20:12.2500504Z",
+  "passed": true,
+  "scans": [
+    {
+      "sample": "Terrace",
+      "p": 8,
+      "i": 40000,
+      "lineSeconds": 0.08,
+      "state": "Complete",
+      "rmseNm": 0.14551525312789576,
+      "validFraction": 1,
+      "pixels": 4096,
+      "wallSeconds": 4.6980739,
+      "passed": true
+    },
+    {
+      "sample": "Terrace",
+      "p": 8,
+      "i": 40000,
+      "lineSeconds": 0.008,
+      "state": "Complete",
+      "rmseNm": 1.7260392691441038,
+      "validFraction": 1,
+      "pixels": 4096,
+      "wallSeconds": 0.524841,
+      "passed": true
+    },
+    {
+      "sample": "Terrace",
+      "p": 3,
+      "i": 1000,
+      "lineSeconds": 0.08,
+      "state": "Complete",
+      "rmseNm": 1.528554004314502,
+      "validFraction": 1,
+      "pixels": 4096,
+      "wallSeconds": 4.5851754,
+      "passed": true
+    },
+    {
+      "sample": "Terrace",
+      "p": 40,
+      "i": 60000,
+      "lineSeconds": 0.08,
+      "state": "Complete",
+      "rmseNm": 1.4143236727173119,
+      "validFraction": 1,
+      "pixels": 4096,
+      "wallSeconds": 4.4316959,
+      "passed": true
+    },
+    {
+      "sample": "Grating",
+      "p": 8,
+      "i": 40000,
+      "lineSeconds": 0.08,
+      "state": "Complete",
+      "rmseNm": 0.1404329056181489,
+      "validFraction": 1,
+      "pixels": 4096,
+      "wallSeconds": 4.4944864,
+      "passed": true
+    },
+    {
+      "sample": "Grating",
+      "p": 8,
+      "i": 40000,
+      "lineSeconds": 0.008,
+      "state": "Complete",
+      "rmseNm": 1.8314231758559483,
+      "validFraction": 1,
+      "pixels": 4096,
+      "wallSeconds": 0.537626,
+      "passed": true
+    },
+    {
+      "sample": "Grating",
+      "p": 3,
+      "i": 1000,
+      "lineSeconds": 0.08,
+      "state": "Complete",
+      "rmseNm": 0.9503004340052792,
+      "validFraction": 1,
+      "pixels": 4096,
+      "wallSeconds": 4.5328442,
+      "passed": true
+    },
+    {
+      "sample": "Grating",
+      "p": 40,
+      "i": 60000,
+      "lineSeconds": 0.08,
+      "state": "Complete",
+      "rmseNm": 1.4177879878665445,
+      "validFraction": 1,
+      "pixels": 4096,
+      "wallSeconds": 4.5626916,
+      "passed": true
+    },
+    {
+      "sample": "Islands",
+      "p": 8,
+      "i": 40000,
+      "lineSeconds": 0.08,
+      "state": "Complete",
+      "rmseNm": 0.05287344807906697,
+      "validFraction": 1,
+      "pixels": 4096,
+      "wallSeconds": 4.5495768,
+      "passed": true
+    },
+    {
+      "sample": "Islands",
+      "p": 8,
+      "i": 40000,
+      "lineSeconds": 0.008,
+      "state": "Complete",
+      "rmseNm": 0.5583620832321086,
+      "validFraction": 1,
+      "pixels": 4096,
+      "wallSeconds": 0.5506002,
+      "passed": true
+    },
+    {
+      "sample": "Islands",
+      "p": 3,
+      "i": 1000,
+      "lineSeconds": 0.08,
+      "state": "Complete",
+      "rmseNm": 0.5351390595588015,
+      "validFraction": 1,
+      "pixels": 4096,
+      "wallSeconds": 4.5208885,
+      "passed": true
+    },
+    {
+      "sample": "Islands",
+      "p": 40,
+      "i": 60000,
+      "lineSeconds": 0.08,
+      "state": "Complete",
+      "rmseNm": 1.3142055019602583,
+      "validFraction": 1,
+      "pixels": 4096,
+      "wallSeconds": 4.528372,
+      "passed": true
+    }
+  ]
+}

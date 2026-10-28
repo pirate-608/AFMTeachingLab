@@ -1,0 +1,192 @@
+{
+  "utc": "2026-10-28T03:19:29.6022192Z",
+  "passed": 37,
+  "total": 37,
+  "tests": [
+    {
+      "name": "F/k",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Optical ray valid and zero centred",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Small-angle optical gain",
+      "passed": true,
+      "detail": "7.4923237E-06"
+    },
+    {
+      "name": "Small-load linearity",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Zero persists across new readings",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Out-of-range optical reading invalid",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Modal free end normalized",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "LJ equilibrium",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "LJ signs",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Force is minus potential derivative @ 3.5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Force is minus potential derivative @ 4.24",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Force is minus potential derivative @ 4.26",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Force is minus potential derivative @ 5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Force is minus potential derivative @ 6",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Force is minus potential derivative @ 12",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Cutoff continuation continuous",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Driven amplitude analytic ratio=0.95",
+      "passed": true,
+      "detail": "2.041614"
+    },
+    {
+      "name": "Driven amplitude analytic ratio=1",
+      "passed": true,
+      "detail": "19.999997"
+    },
+    {
+      "name": "Driven amplitude analytic ratio=1.05",
+      "passed": true,
+      "detail": "1.941061"
+    },
+    {
+      "name": "Free ringdown damping",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Interacting amplitude timestep convergence",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Peak force timestep convergence separately",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "LJ loading-path dependence retained",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "PID saturation anti-windup",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "PID recovers after saturation",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Derivative has no setpoint kick",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Actuator has finite slew",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Stable scan valid",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Stable scan height RMSE \u003C 5 percent of 4 nm range",
+      "passed": true,
+      "detail": "0.145268"
+    },
+    {
+      "name": "Speed produces tracking distortion",
+      "passed": true,
+      "detail": "slow=0.1453 fast=1.5825"
+    },
+    {
+      "name": "Low gains produce lag",
+      "passed": true,
+      "detail": "1.5466"
+    },
+    {
+      "name": "High gains degrade tracking",
+      "passed": true,
+      "detail": "1.1667"
+    },
+    {
+      "name": "Comparison presets share reference",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Frame-rate independent @ 30",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Frame-rate independent @ 60",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Frame-rate independent @ 120",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Work budget preserves pending simulation time",
+      "passed": true,
+      "detail": ""
+    }
+  ]
+}
