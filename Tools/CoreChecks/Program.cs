@@ -18,7 +18,7 @@ static class Program
     static bool Near(double a,double b,double tolerance) { return Math.Abs(a-b)<=tolerance; }
     static int Main(string[] args)
     {
-        if(args.Length>0 && args[0]=="sweep") { Sweep(); return 0; }
+        if(args.Length>0 && args[0]=="sweep") { Sweep(args.Length>1?args[1]:"Reports/approach-retract.csv"); return 0; }
         if(args.Length>0 && args[0]=="convergence") { Convergence(); return 0; }
         if(args.Length>0 && args[0]=="scan") { ScanTrials(); return 0; }
         if(args.Length>0 && args[0]=="matrix") { return Matrix(args.Length>1?args[1]:"Reports/scan-matrix.json"); }
@@ -34,6 +34,12 @@ static class Program
         Check("Zero persists across new readings",Near(optical.DisplacementFromZeroM(optical.Read(10e-9)),0,1e-15) && Math.Abs(optical.DisplacementFromZeroM(zero))>1e-6);
         Check("Out-of-range optical reading invalid",!optical.Read(8e-6).Valid);
         Check("Modal free end normalized",Near(OpticalLeverModel.ModeShape(1),1,1e-10));
+        var dynamicOptics=new OpticalLeverModel();
+        double detectorGain=(dynamicOptics.Read(.1e-9,true).VerticalSignal-dynamicOptics.Read(-.1e-9,true).VerticalSignal)/(.2e-9);
+        double maxLinearReadoutError=0;
+        foreach(double qNm in new[]{-45.0,-30,-20,-10,10,20,30,45})
+            maxLinearReadoutError=Math.Max(maxLinearReadoutError,Math.Abs(dynamicOptics.Read(qNm*1e-9,true).VerticalSignal/detectorGain/(qNm*1e-9)-1));
+        Check("Calibrated dynamic optical approximation within 1 percent at +/-45 nm",maxLinearReadoutError<.01,maxLinearReadoutError.ToString("G5"));
         var force=new TipSampleForce();
         double equilibrium=Math.Pow(2,1.0/6)*force.SigmaNm;
         Check("LJ equilibrium",Math.Abs(force.Force(equilibrium))<1e-12);
@@ -60,6 +66,12 @@ static class Program
         CycleReading coarse=Approach(128,.5,22), fine=Approach(256,.5,22);
         Check("Interacting amplitude timestep convergence",Math.Abs(coarse.AmplitudeNm/fine.AmplitudeNm-1)<.001);
         Check("Peak force timestep convergence separately",Math.Abs(coarse.PeakForceNn/fine.PeakForceNn-1)<.02);
+        foreach(double gap in new[]{14.0,18,26,36,42})
+        {
+            var a128=Approach(128,.5,gap);var a256=Approach(256,.5,gap);
+            if(gap>36){var far=new CantileverModel{GapNm=gap};for(int n=0;n<500;n++)a128=far.StepCycle(128);far=new CantileverModel{GapNm=gap};for(int n=0;n<500;n++)a256=far.StepCycle(256);}
+            Check("Approach convergence at gap="+gap,a128.Valid && a256.Valid && Math.Abs(a128.AmplitudeNm/a256.AmplitudeNm-1)<.01 && Math.Abs(a128.PeakForceNn/a256.PeakForceNn-1)<.02,$"A err={Math.Abs(a128.AmplitudeNm/a256.AmplitudeNm-1):G3}; force err={Math.Abs(a128.PeakForceNn/a256.PeakForceNn-1):G3}");
+        }
         var jumped=Approach(256,2,22);
         Check("LJ loading-path dependence retained",Math.Abs(jumped.AmplitudeNm-fine.AmplitudeNm)>.5 && jumped.MeanNm>0 && fine.MeanNm<0);
         var pid=new PidController(new PidSettings {Kp=2,Ki=100,Kd=0}); pid.Reset(0,0);
@@ -89,6 +101,26 @@ static class Program
         var budgetClock=new SimulationClock();int ticks=0;
         budgetClock.Advance(.1,1,.001,10,()=>ticks++);
         Check("Work budget preserves pending simulation time",ticks==10 && Near(budgetClock.PendingSeconds,.09,1e-12));
+        Check("Clock reports integrated time, not requested time",Near(budgetClock.SimulatedSeconds,.01,1e-12));
+        var oneLine=new ScanSimulator(new ScanSettings{SingleLine=true});
+        while(oneLine.State==ScanState.Calibrating || oneLine.State==ScanState.Scanning)oneLine.Step();
+        int populated=0;foreach(bool valid in oneLine.Valid)if(valid)populated++;
+        Check("Single-line scan acquires one complete centre row",oneLine.State==ScanState.Complete && oneLine.CompletedPixels==64 && populated==64 && oneLine.CurrentRow==32 && oneLine.Rmse<.2);
+        Check("Retrace samples use spatial coordinates",MathEx.Finite(oneLine.Retrace[0]) && MathEx.Finite(oneLine.Retrace[63]) && oneLine.Retrace[32]>3.8 && oneLine.Retrace[0]<.2);
+        var manual=new ScanSimulator(new ScanSettings{SingleLine=true,LineSeconds=.2,Feedback=false,ManualZOffsetNm=1});
+        while(manual.State==ScanState.Calibrating)manual.Step();
+        double frozenIntegral=manual.Controller.Integral;
+        for(int n=0;n<750;n++)manual.Step();
+        Check("Manual Z follows actuator dynamics while PID is frozen",Near(manual.Stage.Position,manual.ReferenceZ+1,.001) && Near(manual.Controller.Integral,frozenIntegral,1e-12));
+        manual.Settings.Feedback=true;
+        for(int n=0;n<1500;n++)manual.Step();
+        Check("Feedback resumes from manual position",manual.State==ScanState.Scanning && Math.Abs(manual.AmplitudeError)<.05 && Math.Abs(manual.Stage.Position-manual.ReferenceZ)<.1);
+        var invalid=new ScanSimulator(new ScanSettings{SingleLine=true});
+        while(invalid.State==ScanState.Calibrating)invalid.Step();
+        invalid.Stage.Reset(8);invalid.Step();
+        double stoppedTime=invalid.SimulationSeconds,stoppedIntegral=invalid.Controller.Integral;
+        for(int n=0;n<100;n++)invalid.Step();
+        Check("Invalid force domain stops sampling and integration",invalid.State==ScanState.Fault && invalid.CompletedPixels==0 && invalid.SimulationSeconds==stoppedTime && invalid.Controller.Integral==stoppedIntegral);
         Console.WriteLine("RESULT "+(checks-failures)+"/"+checks+" passed");
         if(args.Length>1 && args[0]=="verify")
         {
@@ -130,18 +162,19 @@ static class Program
         File.WriteAllText(path,JsonSerializer.Serialize(new {utc=DateTime.UtcNow,passed=passed,scans=results},new JsonSerializerOptions{WriteIndented=true}));
         return passed?0:1;
     }
-    static void Sweep()
+    static void Sweep(string path)
     {
-        var sw=Stopwatch.StartNew();
         var osc=new CantileverModel();
-        Console.WriteLine("gap_nm,amplitude_nm,mean_nm,min_gap_nm,peak_force_nn,valid");
-        for(double gap=36;gap>=15;gap-=.5)
+        var csv=new System.Text.StringBuilder("direction,gap_nm,amplitude_nm,mean_nm,min_gap_nm,peak_force_nn,valid\n");
+        foreach(string direction in new[]{"approach","retract"})
+        for(int point=0;point<=42;point++)
         {
+            double gap=direction=="approach"?36-point*.5:15+point*.5;
             osc.GapNm=gap; CycleReading r=default(CycleReading);
             for(int n=0;n<500;n++) r=osc.StepCycle(512);
-            Console.WriteLine(string.Format(System.Globalization.CultureInfo.InvariantCulture,"{0:F2},{1:F6},{2:F6},{3:F6},{4:F6},{5}",gap,r.AmplitudeNm,r.MeanNm,r.MinGapNm,r.PeakForceNn,r.Valid));
+            csv.AppendLine(string.Format(System.Globalization.CultureInfo.InvariantCulture,"{0},{1:F2},{2:F6},{3:F6},{4:F6},{5:F6},{6}",direction,gap,r.AmplitudeNm,r.MeanNm,r.MinGapNm,r.PeakForceNn,r.Valid));
         }
-        Console.WriteLine("elapsed_seconds="+sw.Elapsed.TotalSeconds.ToString("F3"));
+        File.WriteAllText(path,csv.ToString());Console.WriteLine("Saved approach/retract curves: "+path);
     }
     static void Convergence()
     {

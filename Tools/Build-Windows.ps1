@@ -9,6 +9,11 @@ $env:ALLUSERSPROFILE = 'C:\ProgramData'
 $env:TEMP = Join-Path $env:LOCALAPPDATA 'Temp'
 $env:TMP = $env:TEMP
 New-Item -ItemType Directory -Path (Join-Path $afmProjectRoot 'Reports') -Force | Out-Null
+$afmStarted=Get-Date
 $afmArgs = '-batchmode -nographics -quit -projectPath "' + $afmProjectRoot + '" -executeMethod AfmLab.Editor.LabBuilder.BuildWindows -logFile "' + $afmProjectRoot + '\Reports\unity-build.log" -upmLogFile "' + $afmProjectRoot + '\Reports\upm.log"'
 $afmBuildProcess = Start-Process -FilePath $UnityEditor -ArgumentList $afmArgs -WindowStyle Hidden -PassThru -Wait
 if ($afmBuildProcess.ExitCode -ne 0) { throw 'Unity build failed. See Reports/unity-build.log.' }
+$afmReport=Get-Item -LiteralPath (Join-Path $afmProjectRoot 'Reports\build.json')
+if ($afmReport.LastWriteTime -lt $afmStarted -or (Get-Content -LiteralPath $afmReport.FullName | ConvertFrom-Json).result -ne 'Succeeded') {
+    throw 'Unity exited without a new successful build report.'
+}

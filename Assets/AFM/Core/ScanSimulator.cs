@@ -27,6 +27,8 @@ namespace AfmLab.Core
         public SampleKind Sample=SampleKind.Terrace;
         public double LineSeconds=.08, SetpointRatio=.8;
         public bool Feedback=true;
+        public bool SingleLine;
+        public double ManualZOffsetNm;
         public int StepsPerCycle=128;
         public double DetectorSeconds=.00008;
         public PidSettings Pid=new PidSettings();
@@ -56,6 +58,7 @@ namespace AfmLab.Core
         public double AmplitudeError { get { return Settings.SetpointRatio*Oscillator.Parameters.FreeAmplitudeNm-MeasuredAmplitude; } }
         public CycleReading LastCycle { get; private set; }
         public int CompletedPixels { get; private set; }
+        public int TotalPixels { get { return Settings.Resolution*(Settings.SingleLine?1:Settings.Resolution); } }
         public int Revision { get; private set; }
         public int CurrentRow { get; private set; }
         public bool IsRetrace { get; private set; }
@@ -64,6 +67,7 @@ namespace AfmLab.Core
         public double CycleSeconds { get { return 1/(Oscillator.Parameters.FrequencyHz*Oscillator.Parameters.DriveRatio); } }
         int initializationCycles,stableCycles,goodPixels,lastIndex=-1;
         double scanTime,squaredError;
+        bool previousFeedback=true;
 
         public ScanSimulator(ScanSettings settings)
         {
@@ -94,14 +98,15 @@ namespace AfmLab.Core
                 double turnaround=Math.Max(.002,Settings.LineSeconds*.08);
                 double rowDuration=2*Settings.LineSeconds+2*turnaround;
                 int row=(int)(scanTime/rowDuration);
-                if(row>=Settings.Resolution) { FinishPixel(lastIndex); State=ScanState.Complete; return; }
-                if(row!=CurrentRow)
+                if(row>=(Settings.SingleLine?1:Settings.Resolution)) { FinishPixel(lastIndex); State=ScanState.Complete; return; }
+                int surfaceRow=Settings.SingleLine?Settings.Resolution/2:row;
+                if(surfaceRow!=CurrentRow)
                 {
-                    CurrentRow=row;
+                    CurrentRow=surfaceRow;
                     for(int i=0;i<Trace.Length;i++) { Trace[i]=double.NaN; Retrace[i]=double.NaN; }
                 }
                 double phase=scanTime-row*rowDuration;
-                Y=(row+.5)/Settings.Resolution;
+                Y=(surfaceRow+.5)/Settings.Resolution;
                 if(phase<Settings.LineSeconds) { X=phase/Settings.LineSeconds; IsRetrace=false; acquiring=true; }
                 else if(phase<Settings.LineSeconds+turnaround) { X=1; IsRetrace=false; }
                 else if(phase<2*Settings.LineSeconds+turnaround) { X=1-(phase-Settings.LineSeconds-turnaround)/Settings.LineSeconds; IsRetrace=true; acquiring=true; }
@@ -110,7 +115,7 @@ namespace AfmLab.Core
                     X=0; IsRetrace=true;
                     // Finite Y transition during blanked turnaround; state and integral persist.
                     double t=(phase-2*Settings.LineSeconds-turnaround)/turnaround;
-                    Y=(row+.5+MathEx.Clamp(t,0,1))/Settings.Resolution;
+                    if(!Settings.SingleLine)Y=(row+.5+MathEx.Clamp(t,0,1))/Settings.Resolution;
                 }
                 SurfaceHeight=Samples.Height(Settings.Sample,X,Y);
                 column=Math.Min(Settings.Resolution-1,(int)(X*Settings.Resolution));
@@ -132,6 +137,9 @@ namespace AfmLab.Core
             bool signalValid=LastCycle.Valid && MathEx.Finite(MeasuredAmplitude);
             if(!signalValid) { Fault="针尖进入正则化区，已停止采样；请复位并降低扫描速度或增益。"; State=ScanState.Fault; return; }
             bool feedback=State==ScanState.Calibrating || Settings.Feedback;
+            // Re-enter automatic control from the actual manual position. Turnarounds do not reset PID.
+            if(feedback && !previousFeedback)Controller.Reset(Stage.Position,MeasuredAmplitude/20);
+            previousFeedback=feedback;
             if(State==ScanState.Scanning)
             {
                 Controller.Settings.Kp=Settings.Pid.Kp; Controller.Settings.Ki=Settings.Pid.Ki;
@@ -141,6 +149,7 @@ namespace AfmLab.Core
             {
                 double command=Controller.Step(Settings.SetpointRatio,MeasuredAmplitude/20,dt,Stage.Minimum,Stage.Maximum,feedback);
                 if(feedback) Stage.Step(command,dt);
+                else Stage.Step(ReferenceZ+Settings.ManualZOffsetNm,dt);
                 if(feedback && Stage.SlewLimited) Controller.TrackSlewLimit(Stage.Position,dt,.001);
             }
             if(State==ScanState.Calibrating)

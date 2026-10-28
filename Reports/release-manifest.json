@@ -1,0 +1,408 @@
+{
+  "capturedUtc": "2026-10-28T08:23:25.3138607Z",
+  "product": "AFM Teaching Lab",
+  "version": "0.1.0",
+  "unity": "6000.5.7f1",
+  "renderPipeline": "URP 17.5.0",
+  "platform": "Windows x64",
+  "backend": "Mono",
+  "scene": "Assets/AFM/Scenes/AFMLab.unity",
+  "executable": "Builds/Windows/AFMTeachingLab.exe",
+  "distribution": "Keep the entire Builds/Windows directory together",
+  "managedPlayerSha256": "9e7bb6fedd366eb89003713e39bb8faa780d696f472d3565b53825d12d48f7f2",
+  "build": {
+    "result": "Succeeded",
+    "errors": 0,
+    "warnings": 0,
+    "bytes": 108785968
+  },
+  "coreChecks": {
+    "passed": 49,
+    "total": 49,
+    "utc": "2026-10-28T08:13:22.9254783Z"
+  },
+  "scanMatrix": {
+    "passed": true,
+    "utc": "2026-10-28T08:07:48.2533238Z"
+  },
+  "player1600": {
+    "width": 1600,
+    "height": 1000,
+    "urpActive": true,
+    "urpMaterials": true,
+    "zeroButton": true,
+    "forceSlider": true,
+    "pause": true,
+    "playback": true,
+    "normalPlayback": true,
+    "medianFrameMs": 16.6669990867376,
+    "p95FrameMs": 16.6725050657988,
+    "navigation": true,
+    "scanComplete": true,
+    "rmseNm": 0.145515253127896,
+    "fastPreset": true,
+    "fastRmseNm": 1.7260392691441,
+    "sampleDropdown": true,
+    "singleLine": true,
+    "layout": true
+  },
+  "player1280": {
+    "width": 1280,
+    "height": 800,
+    "urpActive": true,
+    "urpMaterials": true,
+    "zeroButton": true,
+    "forceSlider": true,
+    "pause": true,
+    "playback": true,
+    "normalPlayback": true,
+    "medianFrameMs": 16.6670996695757,
+    "p95FrameMs": 16.6678987443447,
+    "navigation": true,
+    "scanComplete": true,
+    "rmseNm": 0.145515253127896,
+    "fastPreset": true,
+    "fastRmseNm": 1.7260392691441,
+    "sampleDropdown": true,
+    "singleLine": true,
+    "layout": true
+  },
+  "files": [
+    {
+      "path": "Assets/AFM.meta",
+      "sha256": "a6195157a75a574f29c878a6363d46b57b6fef3d951846b8c00863339d020bff"
+    },
+    {
+      "path": "Assets/AFM/Core.meta",
+      "sha256": "d005f21bafafbd2cd2194c743c51bd87485147134171d519c939ec4de633e884"
+    },
+    {
+      "path": "Assets/AFM/Core/CantileverModel.cs",
+      "sha256": "bf8adcd0ebebcff79dbfa8ec8380ca486b48e04235736ac35be7a4824fd483ed"
+    },
+    {
+      "path": "Assets/AFM/Core/CantileverModel.cs.meta",
+      "sha256": "d5447db87c9e06be9d7e75344e5f46ae7b931f094793a7246b7535a59478f8ea"
+    },
+    {
+      "path": "Assets/AFM/Core/MathTypes.cs",
+      "sha256": "8e4ccc487cff9796de5f7924da386823d554750a1931896c4ea3711e43ffa33f"
+    },
+    {
+      "path": "Assets/AFM/Core/MathTypes.cs.meta",
+      "sha256": "1da45e384ca5e7ce1448ec40f92737fecff5c56c16629bbbb1483f6ab2f6f20b"
+    },
+    {
+      "path": "Assets/AFM/Core/OpticalLeverModel.cs",
+      "sha256": "c71b77f05bce92134a261015cbb533c4c147ec56b0e28eb9e3b9a9278aeb796c"
+    },
+    {
+      "path": "Assets/AFM/Core/OpticalLeverModel.cs.meta",
+      "sha256": "300671090ce0eb2f2110fd496189c92f029259d0a80a462e929699cb51edbe95"
+    },
+    {
+      "path": "Assets/AFM/Core/PidController.cs",
+      "sha256": "36f41213859319b5a4e72e614abc8ec30738a93e6c4275c18172cbce719dd681"
+    },
+    {
+      "path": "Assets/AFM/Core/PidController.cs.meta",
+      "sha256": "1c6402ccb7cc51c216ec443adbcd5d95d62cc48ed7158f3bbae51b46b117bc10"
+    },
+    {
+      "path": "Assets/AFM/Core/ScanSimulator.cs",
+      "sha256": "e3fb260b82587323e184308015de3b0b3790f5eec9b1b659abcb453c70a8a6af"
+    },
+    {
+      "path": "Assets/AFM/Core/ScanSimulator.cs.meta",
+      "sha256": "a485cd47f1173ee7897ca7323706b03b29becfff87f716b6b397b425531a7a25"
+    },
+    {
+      "path": "Assets/AFM/Core/SimulationClock.cs",
+      "sha256": "153e62e4ff95982e237ee2ecb783bb53b792509b342d90f8956264d03abe921f"
+    },
+    {
+      "path": "Assets/AFM/Core/SimulationClock.cs.meta",
+      "sha256": "e6fc2313807ca9de8f231db772a12dd66c533ab0e9bd89b30bdde9e199021220"
+    },
+    {
+      "path": "Assets/AFM/Core/TipSampleForce.cs",
+      "sha256": "f5c122ec1955dd26cbdfea4b426109b4d7e016d413394df423f8d91cc66ea5da"
+    },
+    {
+      "path": "Assets/AFM/Core/TipSampleForce.cs.meta",
+      "sha256": "fee1906ee3023e171c1876deab4818a0f9f66c9ba1b9393b28364b9663df4777"
+    },
+    {
+      "path": "Assets/AFM/Editor.meta",
+      "sha256": "ecefb108227415396d7dcfc7e395720f9de983485c28e05dccb2b299013ded69"
+    },
+    {
+      "path": "Assets/AFM/Editor/LabBuilder.cs",
+      "sha256": "2e235792446378848cf44713cb389dccf810f17b30b2a1b1a0a0ad5ad9706519"
+    },
+    {
+      "path": "Assets/AFM/Editor/LabBuilder.cs.meta",
+      "sha256": "f7e17a1694bec6a30f918d658914f94bb30132d6344a44b1f8ae5f0872eb48e2"
+    },
+    {
+      "path": "Assets/AFM/Rendering.meta",
+      "sha256": "83b7811fbbc5e85e6ea99f7872aec27a9b5c40fa0bf97de3e57758b823553a25"
+    },
+    {
+      "path": "Assets/AFM/Rendering/AFMUniversalPipeline.asset",
+      "sha256": "8e1b23e529b31dfb71c48eb54c3665c282cf985fb5662b6393e13f9627758f37"
+    },
+    {
+      "path": "Assets/AFM/Rendering/AFMUniversalPipeline.asset.meta",
+      "sha256": "d1ea2eff2eff5b2d577d50228a47ce442ad269311c47a1ecc9e599b3479d3579"
+    },
+    {
+      "path": "Assets/AFM/Rendering/AFMUniversalRenderer.asset",
+      "sha256": "4f62d33bbeb15f420fa5c2c4f646701284f04350c15b20c7e70fb41876cdf5ec"
+    },
+    {
+      "path": "Assets/AFM/Rendering/AFMUniversalRenderer.asset.meta",
+      "sha256": "0e27cd7058dc8431ae603ef5059c780a4ba16cf96cebf2afaebb72af93a3c31d"
+    },
+    {
+      "path": "Assets/AFM/Resources.meta",
+      "sha256": "9891db10daa58fbe69f46b052de74f7abfab33f04b45224278a23132f10e87b5"
+    },
+    {
+      "path": "Assets/AFM/Resources/AFMPanel.asset",
+      "sha256": "dea9fb69f9899fd466e2aa8d74a1920748dc9f433e25c235cb71289b9516c03a"
+    },
+    {
+      "path": "Assets/AFM/Resources/AFMPanel.asset.meta",
+      "sha256": "f3828b3713b4580204bcb8253cbb0c12f23d5427677e09bb07c0856497756beb"
+    },
+    {
+      "path": "Assets/AFM/Resources/LabChinese.ttf",
+      "sha256": "5e7e0623a1402b806a7351f4c57592d3425f490e79f2e16b8f3f8c535c808431"
+    },
+    {
+      "path": "Assets/AFM/Resources/LabChinese.ttf.meta",
+      "sha256": "f6af16a1252560e0feb8c00a1b683c0360b5310e88b81f9ab86b0e9ccda9fc1b"
+    },
+    {
+      "path": "Assets/AFM/Resources/LabStyle.uss",
+      "sha256": "43d068980d6c2bece9333dea9474186753634c634ed1bc7dfbc918f1b26cdf40"
+    },
+    {
+      "path": "Assets/AFM/Resources/LabStyle.uss.meta",
+      "sha256": "cbdca477a29f2efb4380044a8d4f3630b8b6b116ee0e69b41da301f23206ac5e"
+    },
+    {
+      "path": "Assets/AFM/Resources/LabTheme.tss",
+      "sha256": "682e2b1c6cc1d6e332c15f56c840f7d8282cb1e5bc627eb6664580352a752fda"
+    },
+    {
+      "path": "Assets/AFM/Resources/LabTheme.tss.meta",
+      "sha256": "2fa21c55ca98d684c6e5cb1733f322c61102011522bcfbd38bae1202150ff988"
+    },
+    {
+      "path": "Assets/AFM/Resources/URPLitReference.mat",
+      "sha256": "48f117a4583d483c01cbc3991fe730bbcee85a619c73a87b4ae02af4cffcb090"
+    },
+    {
+      "path": "Assets/AFM/Resources/URPLitReference.mat.meta",
+      "sha256": "e4efd74731563fa5cf47cab10cd94c954dd4f357ffd17ffdf9b79822e8a98ce9"
+    },
+    {
+      "path": "Assets/AFM/Resources/URPUnlitReference.mat",
+      "sha256": "3070fb0d0713722e9c60c0f0c73992f0bbfd26ed742d0efc3fc6b3e126f6ae01"
+    },
+    {
+      "path": "Assets/AFM/Resources/URPUnlitReference.mat.meta",
+      "sha256": "d5326bfc8db6b952a1dd61525868feca9e45e57de8bbb7117a6a9595d4bc1e98"
+    },
+    {
+      "path": "Assets/AFM/Runtime.meta",
+      "sha256": "18b6f06a7852e40d16940041af4f549110a72aef9deaaac4e0392d4a1d2402e8"
+    },
+    {
+      "path": "Assets/AFM/Runtime/AfmLabApp.cs",
+      "sha256": "9c3b68b5643a019be357ce60d1ca895393760b35fdb5e1a87ec30a37e2ca3e9d"
+    },
+    {
+      "path": "Assets/AFM/Runtime/AfmLabApp.cs.meta",
+      "sha256": "7c7fc82d0cd9b1b16aec70499f4073a812507f44f49bde4be6e60493d167e7ba"
+    },
+    {
+      "path": "Assets/AFM/Runtime/InstrumentView.cs",
+      "sha256": "745774e35957731e9b93cf4553e46276c065f2b49506e8f920f953ad5756a828"
+    },
+    {
+      "path": "Assets/AFM/Runtime/InstrumentView.cs.meta",
+      "sha256": "cd135ca6ed86903e00a924750a05ea5ea6e84b302424032b006011ab395b059f"
+    },
+    {
+      "path": "Assets/AFM/Runtime/LabPlot.cs",
+      "sha256": "d30c3f508d95aba0b7283a2af5dbf9593511d746b00f47ceab4e41ec49a18534"
+    },
+    {
+      "path": "Assets/AFM/Runtime/LabPlot.cs.meta",
+      "sha256": "7e28a420ace0b81b82250462c13dede86c3d4aa4395f2d89de43c1d1ab486738"
+    },
+    {
+      "path": "Assets/AFM/Scenes.meta",
+      "sha256": "e99fa024ee710bf4e2b75430a485c6c0c7956ded3bd21df6d2eac23490c29fe3"
+    },
+    {
+      "path": "Assets/AFM/Scenes/AFMLab.unity",
+      "sha256": "6cd30411a8aa56ab24b8b158069928c5bb0f405e8907b6e70c3e040144f19b8a"
+    },
+    {
+      "path": "Assets/AFM/Scenes/AFMLab.unity.meta",
+      "sha256": "f65282d6c429d9edfce8471881cb3155f94665eb9e9dcdc75ced4a276cf38b1d"
+    },
+    {
+      "path": "Assets/DefaultVolumeProfile.asset",
+      "sha256": "20a2423fd6ad8a662dd4757b038c5da4d7bee6d789b1e3fe0666c034d96150a7"
+    },
+    {
+      "path": "Assets/DefaultVolumeProfile.asset.meta",
+      "sha256": "7d7763a29bf0cc937f76e6d8c955bd43d53dee64bfca63d32e1185c07b6865e2"
+    },
+    {
+      "path": "Assets/UniversalRenderPipelineGlobalSettings.asset",
+      "sha256": "1f1ea7e966c9598767f78e460a91f2ea7381091ae427ee0bffb044b1cfd2d4de"
+    },
+    {
+      "path": "Assets/UniversalRenderPipelineGlobalSettings.asset.meta",
+      "sha256": "352360f09e0b822b0b035cc6df174f2e414f63e6779a40ac7e891fb2b8b29665"
+    },
+    {
+      "path": "Packages/manifest.json",
+      "sha256": "e07e59a03ec2f9826d77044a5f58fc7e9ea8961d057ff8fc8585dc96c261c93b"
+    },
+    {
+      "path": "Packages/packages-lock.json",
+      "sha256": "7e1ad6c56d6394afd921a65477b21ff2a9f980601972e0f0f9788240ec067d17"
+    },
+    {
+      "path": "ProjectSettings/AudioManager.asset",
+      "sha256": "9543c41dbfc7d3951217c4dd9481ed026eb8e529b85ecf4463969a0fea747729"
+    },
+    {
+      "path": "ProjectSettings/ClusterInputManager.asset",
+      "sha256": "40e65dd214bf254955d2c8829ca8ce2130fd3510485560ce012e9a1ddd93e623"
+    },
+    {
+      "path": "ProjectSettings/DynamicsManager.asset",
+      "sha256": "d102dd312ef330f5e5ca255c070fb34f68f59ec633d1e9fd67e2f2f6f88f66c8"
+    },
+    {
+      "path": "ProjectSettings/EditorBuildSettings.asset",
+      "sha256": "22b5776f11c9ecba0361dee6593ad96a240a381c6956843b2142e2e206fd2aa5"
+    },
+    {
+      "path": "ProjectSettings/EditorSettings.asset",
+      "sha256": "29bbdc2f4f4b92e0bead569cec8e85c94692d2644827de2b935cee5443559bc0"
+    },
+    {
+      "path": "ProjectSettings/GraphicsSettings.asset",
+      "sha256": "5a9a61f2853bfef13440418d66de3d83c76eb24496c2a8c71f6383466c97669c"
+    },
+    {
+      "path": "ProjectSettings/InputManager.asset",
+      "sha256": "d0f454ddb880912abcae92e3e12957a7446786ba89e24937e019ff3bbc0d4300"
+    },
+    {
+      "path": "ProjectSettings/MemorySettings.asset",
+      "sha256": "614ea14e97e08ea3bc2e3849a35414ff708b255075f475fc8a03991c5c9b4d57"
+    },
+    {
+      "path": "ProjectSettings/MultiplayerManager.asset",
+      "sha256": "aba89fd1a1ddad182727ad82727e536d27372e90328a8196da2a4560398983dd"
+    },
+    {
+      "path": "ProjectSettings/NavMeshAreas.asset",
+      "sha256": "7ebbf8f53b8033104e1878b95ca07a28d0954092d81c220f14196a42f651e658"
+    },
+    {
+      "path": "ProjectSettings/Physics2DSettings.asset",
+      "sha256": "1cfc0c8fbceec604fd7cd2a06c04ff05dddee6335b75c92b0f5715ad80ba9490"
+    },
+    {
+      "path": "ProjectSettings/PhysicsCoreProjectSettings2D.asset",
+      "sha256": "bedc5339a832c60dc3f11b84abc4f4384dbfa20b0cd9ad6c444b907e751fc35e"
+    },
+    {
+      "path": "ProjectSettings/PresetManager.asset",
+      "sha256": "29c125923fe6e29f90190d4fce1c82d660e7051546e2c9d02908d18c9cf2436c"
+    },
+    {
+      "path": "ProjectSettings/ProjectAuditorSettings.asset",
+      "sha256": "22c699d7b424bd59053e552e6c358d9cca02d0663c276ec46ea0d0bd96651d85"
+    },
+    {
+      "path": "ProjectSettings/ProjectSettings.asset",
+      "sha256": "b7720b9745cd738f7a36f2c25bde2f265cb1ba8ff69c2d2c78af9bb636497eec"
+    },
+    {
+      "path": "ProjectSettings/ProjectVersion.txt",
+      "sha256": "4b72a68f7b9e250d7f392f9964a8ce91959fa26628a05117ab911edfec912313"
+    },
+    {
+      "path": "ProjectSettings/QualitySettings.asset",
+      "sha256": "5148497a4d25cfb21db015f01ae6ad15a9d1601880c07901d320c307bc2c75d9"
+    },
+    {
+      "path": "ProjectSettings/SceneTemplateSettings.json",
+      "sha256": "bb9098b3bfcde78d93e264b96f7b77b5430e64e8c57a7aad7f5a5d9c3945e16a"
+    },
+    {
+      "path": "ProjectSettings/ShaderGraphSettings.asset",
+      "sha256": "6fead5a816c4eed70f224d5472340ecf1ea0b4de4f87d5926bb17fa10ffb3dc9"
+    },
+    {
+      "path": "ProjectSettings/TagManager.asset",
+      "sha256": "996628fdc904025b83606bbfbda4fe08c0bbe916475146110e77cdc2f22c2013"
+    },
+    {
+      "path": "ProjectSettings/TimeManager.asset",
+      "sha256": "3396f52fdc16d445024e01d7a2d99db6f0a37569d1d73c0302e9ffb857d90287"
+    },
+    {
+      "path": "ProjectSettings/UnityConnectSettings.asset",
+      "sha256": "11251dae0356b6f43dd2c67bb511f6b7ecda4e5de425186bba3297e6f3dc1c6f"
+    },
+    {
+      "path": "ProjectSettings/VersionControlSettings.asset",
+      "sha256": "e199cdfa6a8f2bf33cfd47e549198f13e3eb2a5099e908fdb4e0f14d939ccc6b"
+    },
+    {
+      "path": "ProjectSettings/VFXManager.asset",
+      "sha256": "2973a6af930e142f62cde00076beda8a3cc3a66d9bfcde7a58ba7d4be2251c26"
+    },
+    {
+      "path": "Tools/Build-Windows.ps1",
+      "sha256": "c3e635b299a0ca74b110ccceeed4cb86d1bdeb989551533e5da7189b77c2c60b"
+    },
+    {
+      "path": "Tools/CoreChecks/CoreChecks.csproj",
+      "sha256": "174ee80b80404f8c4ac19a0cda8be8f7b8d75bb1c6d583c8f973cfe493af0635"
+    },
+    {
+      "path": "Tools/CoreChecks/NuGet.Config",
+      "sha256": "2142cfb2dfa2c7feefbe40fabcc68b0dfecadafa99a1db9b70239d977cf2a7ef"
+    },
+    {
+      "path": "Tools/CoreChecks/Program.cs",
+      "sha256": "6f6af5f18c4cd6a5c6b55ca868a7df17c4d31f3a4fede46939457fbaa6eb2900"
+    },
+    {
+      "path": "Tools/Smoke-Player.ps1",
+      "sha256": "8e06a598551819cc0816ea41c400aaf6971d990caba0787cd18f27a217b1de3c"
+    },
+    {
+      "path": "Tools/Verify-Core.ps1",
+      "sha256": "d14d4c2f12d9c26ff8ddd98de223d712fcdf86d998bf406140b8464e9169ee85"
+    },
+    {
+      "path": "Tools/Write-ReleaseManifest.ps1",
+      "sha256": "29e824fdce7227aa183a07d7217f9c5e7bcb83f558b8ef8e4577032b6caf532d"
+    }
+  ]
+}

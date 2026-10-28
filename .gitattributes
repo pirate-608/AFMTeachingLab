@@ -9,7 +9,8 @@
 # Define macros (only works in top-level gitattributes files)
 [attr]lfs               filter=lfs diff=lfs merge=lfs -text
 [attr]unity-json        eol=lf linguist-language=json
-[attr]unity-yaml        merge=unityyamlmerge eol=lf linguist-language=yaml
+# Unity serializers retain a space after empty YAML scalar values.
+[attr]unity-yaml        merge=unityyamlmerge eol=lf linguist-language=yaml whitespace=-blank-at-eol
 
 # Optionally collapse Unity YAML files on GitHub diffs
 # [attr]unity-yaml        merge=unityyamlmerge text linguist-language=yaml linguist-generated
@@ -23,6 +24,9 @@
 *.shader                text
 
 # Unity JSON files
+*.json                  text eol=lf
+*.csv                   text eol=lf
+*.csproj                text eol=lf
 *.asmdef                unity-json
 *.asmref                unity-json
 *.index                 unity-json

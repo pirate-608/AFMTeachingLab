@@ -1,7 +1,7 @@
 {
-  "utc": "2026-10-28T03:19:29.6022192Z",
-  "passed": 37,
-  "total": 37,
+  "utc": "2026-10-28T08:13:22.9254783Z",
+  "passed": 49,
+  "total": 49,
   "tests": [
     {
       "name": "F/k",
@@ -37,6 +37,11 @@
       "name": "Modal free end normalized",
       "passed": true,
       "detail": ""
+    },
+    {
+      "name": "Calibrated dynamic optical approximation within 1 percent at \u002B/-45 nm",
+      "passed": true,
+      "detail": "0.007092"
     },
     {
       "name": "LJ equilibrium",
@@ -114,6 +119,31 @@
       "detail": ""
     },
     {
+      "name": "Approach convergence at gap=14",
+      "passed": true,
+      "detail": "A err=6.63E-07; force err=2.41E-06"
+    },
+    {
+      "name": "Approach convergence at gap=18",
+      "passed": true,
+      "detail": "A err=7.24E-07; force err=0.000857"
+    },
+    {
+      "name": "Approach convergence at gap=26",
+      "passed": true,
+      "detail": "A err=1.41E-06; force err=0.00203"
+    },
+    {
+      "name": "Approach convergence at gap=36",
+      "passed": true,
+      "detail": "A err=3.08E-07; force err=2.88E-06"
+    },
+    {
+      "name": "Approach convergence at gap=42",
+      "passed": true,
+      "detail": "A err=2.9E-07; force err=1.86E-06"
+    },
+    {
       "name": "LJ loading-path dependence retained",
       "passed": true,
       "detail": ""
@@ -185,6 +215,36 @@
     },
     {
       "name": "Work budget preserves pending simulation time",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Clock reports integrated time, not requested time",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Single-line scan acquires one complete centre row",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Retrace samples use spatial coordinates",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Manual Z follows actuator dynamics while PID is frozen",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Feedback resumes from manual position",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Invalid force domain stops sampling and integration",
       "passed": true,
       "detail": ""
     }

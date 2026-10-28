@@ -57,7 +57,8 @@ namespace AfmLab
             p.strokeColor=new Color(.25f,.9f,.8f);p.lineWidth=2;
             p.BeginPath();p.Arc(new Vector2(cx,zy),7,0,360);p.Stroke();
             p.fillColor=Valid?new Color(1,.28f,.18f):Color.gray;
-            p.BeginPath();p.Arc(new Vector2(cx,Mathf.Clamp(sy,cy-size/2,cy+size/2)),5,0,360);p.Fill();
+            // An out-of-view spot is not clamped into a fictitious valid position at the detector edge.
+            if(Math.Abs(SpotUm)<=40){p.BeginPath();p.Arc(new Vector2(cx,sy),5,0,360);p.Fill();}
         }
     }
 }

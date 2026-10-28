@@ -17,20 +17,26 @@ namespace AfmLab
         ScanSimulator scan;
         readonly SimulationClock clock=new SimulationClock();
         InstrumentView instrument;
-        VisualElement root,viewport,control,bottom,profileBox,readoutBox;
+        VisualElement root,viewport,control,bottom,profileBox,readoutBox,annotation;
         Image sceneImage;
-        Label modeLabel,stateLabel,readingLabel,noteLabel,profileLabel;
+        Label modeLabel,stateLabel,readingLabel,noteLabel,profileLabel,timeLabel;
+        Button pauseButton,historyButton;
+        DropdownField speedControl;
         readonly Button[] nav=new Button[3];
         LabPlot plotA,plotB,plotC,profile,signalPlot;
         DetectorView detector;
         Texture2D trueTexture,measuredTexture,errorTexture;
         readonly double[] opticalCurve=new double[100],forceCurve=new double[100],potentialCurve=new double[100],trueLine=new double[64];
         readonly double[] amplitudeHistory=new double[180],targetHistory=new double[180],errorHistory=new double[180],zeroHistory=new double[180];
+        readonly double[] forceAmplitudeHistory=new double[180],forceMeanHistory=new double[180],freeAmplitudeLine=new double[180];
+        readonly double[] forceAmplitudeRing=new double[180],forceMeanRing=new double[180];
+        int forceHistoryHead,forceHistoryCount;
         bool showErrorHistory;
         Label[] partLabels;
         readonly Vector3[] partPositions={new Vector3(-1.35f,3.5f,0),new Vector3(-.8f,.1f,0),new Vector3(1.9f,-.48f,0),new Vector3(4.05f,3.15f,0),new Vector3(1.3f,-1.5f,0)};
         int lesson,textureRevision=-1;
-        double appliedForceNn=10,forceGapNm=28,playback=.3;
+        double appliedForceNn=10,forceGapNm=28,playback=.3,displayZeroNm,speedMultiplier=1;
+        double rateWallSeconds,rateSimSeconds,actualRate;
         bool paused,sideView;
         float displayTime,refreshTime;
         bool smoke;
@@ -86,20 +92,26 @@ namespace AfmLab
             var navigation=Element(root,"navigation");
             string[] names={"01   光杠杆读出","02   受力与振动","03   闭环扫描"};
             for(int n=0;n<3;n++){int i=n;nav[n]=Button(navigation,names[n],()=>SetLesson(i),"nav");nav[n].name="lesson-"+n;}
+            var transport=Element(root,"transport");
+            pauseButton=Button(transport,"暂停",()=>paused=!paused,"transport-button");pauseButton.name="pause";
+            Button(transport,"复位当前实验",ResetCurrentLesson,"transport-button").name="reset";
+            speedControl=new DropdownField("演示速度",new System.Collections.Generic.List<string>{"0.5×","1×","2×"},1){name="playback"};
+            speedControl.RegisterValueChangedCallback(e=>speedMultiplier=e.newValue=="0.5×"?.5:e.newValue=="2×"?2:1);transport.Add(speedControl);
+            timeLabel=Label(transport,"","time-readout");
             var body=Element(root,"body");
             viewport=Element(body,"viewport");
             sceneImage=new Image{scaleMode=ScaleMode.StretchToFill};sceneImage.AddToClassList("scene-image");viewport.Add(sceneImage);
             modeLabel=Label(viewport,"","mode-label");
-            partLabels=new Label[5];string[] partNames={"激光器","微悬臂","针尖","四象限探测器","Z 轴压电台"};
+            partLabels=new Label[5];string[] partNames={"激光器","微悬臂","针尖","四象限探测器","Z 台 · +Z 向下回撤"};
             for(int i=0;i<5;i++)partLabels[i]=Label(viewport,partNames[i],"part-label");
-            var annotation=Element(viewport,"annotation");
-            Label(annotation,"结构与光路为放大示意，非等比例","annotation-text");
-            Label(annotation,"定量计算使用 nm / nN；显示倍率不参与反馈","annotation-text");
+            annotation=Element(viewport,"annotation");
+            Label(annotation,"结构与光路为放大示意，非等比例；浅蓝线为反射面的局部法线","annotation-text");
+            Label(annotation,"梁挠度相对梁长放大约 667 倍；光斑定量值见探测器读数","annotation-text");
             profileBox=Element(viewport,"profile-box");var profilePane=Element(profileBox,"profile-pane");
             profileLabel=Label(profilePane,"当前扫描剖面  ·  青：重建  /  橙：真值","small-title");
             profile=new LabPlot {Min=-1,Max=6};profilePane.Add(profile);
             var signalPane=Element(profileBox,"profile-pane");
-            Button(signalPane,"振幅 / 误差 · 点击切换 · 近 96 ms",()=>showErrorHistory=!showErrorHistory,"history-toggle");
+            historyButton=Button(signalPane,"",()=>{showErrorHistory=!showErrorHistory;RefreshReadings();},"history-toggle");historyButton.name="history";
             signalPlot=new LabPlot {Min=10,Max=22,First=()=>showErrorHistory?errorHistory:amplitudeHistory,Second=()=>showErrorHistory?zeroHistory:targetHistory};signalPane.Add(signalPlot);
             var sidebar=Element(body,"sidebar");
             var scroll=new ScrollView(ScrollViewMode.Vertical);scroll.style.flexGrow=1;sidebar.Add(scroll);control=scroll.contentContainer;
@@ -112,14 +124,24 @@ namespace AfmLab
         void SetLesson(int next)
         {
             lesson=next;paused=false;clock.Reset();displayTime=0;control.Clear();bottom.Clear();readoutBox.Clear();
+            rateSimSeconds=rateWallSeconds=actualRate=0;
             plotA=plotB=plotC=null;detector=null;
             for(int n=0;n<3;n++)nav[n].EnableInClassList("selected",n==lesson);
-            profileBox.style.display=lesson==2?DisplayStyle.Flex:DisplayStyle.None;
-            sceneImage.style.bottom=lesson==2?140:0;
+            profileBox.style.display=lesson!=0?DisplayStyle.Flex:DisplayStyle.None;
+            sceneImage.style.bottom=lesson!=0?140:0;
+            annotation.style.bottom=lesson!=0?148:16;
+            pauseButton.SetEnabled(lesson!=0);speedControl.SetEnabled(lesson!=0);
             if(lesson==0)BuildOptical();else if(lesson==1)BuildForces();else BuildScanning();
             readoutBox.Add(stateLabel);readoutBox.Add(readingLabel);
             Button(control,"切换侧视 / 斜视",()=>{sideView=!sideView;instrument.SetSideView(sideView);},"secondary");
             RefreshReadings();
+        }
+        void ResetCurrentLesson()
+        {
+            if(lesson==0){appliedForceNn=0;displayZeroNm=0;optical.CalibrateZero(0);}
+            if(lesson==1){forceModel=new CantileverModel();forceReading=default(CycleReading);forceGapNm=36;forceHistoryHead=forceHistoryCount=0;}
+            if(lesson==2)RestartScan();
+            SetLesson(lesson);
         }
         void BuildOptical()
         {
@@ -130,7 +152,7 @@ namespace AfmLab
             Slider(control,"探测器距离","mm",20,80,(float)(optical.DetectorDistanceM*1000),v=>{optical.DetectorDistanceM=v/1000;},"distance");
             var row=Element(control,"button-row");
             Button(row,"释放外力",()=>{appliedForceNn=0;control.Q<Slider>("force").value=0;},"secondary");
-            var zero=Button(row,"设为光路零点",()=>optical.CalibrateZero(optical.DeflectionM(appliedForceNn*1e-9)),"primary");zero.name="zero";
+            var zero=Button(row,"设为光路零点",()=>{optical.CalibrateZero(optical.DeflectionM(appliedForceNn*1e-9));displayZeroNm=appliedForceNn;},"primary");zero.name="zero";
             stateLabel=Label(control,"","status");readingLabel=Label(control,"","readings");
             noteLabel=Label(control,"光路零点记录当前光斑位置。\n它不会自动跟随载荷变化。\n\n光杠杆测局部斜率，再由梁模型换算位移。","body-copy");
             var a=Card("四象限探测器 · 中央局部放大","显示范围 ±40 μm · 红：光斑 / 青圈：零点");detector=new DetectorView();a.Insert(1,detector);
@@ -150,43 +172,52 @@ namespace AfmLab
             Slider(control,"有效刚度（f₀ 固定）","N/m",2,6,(float)forceModel.Parameters.Stiffness,v=>forceModel.Parameters.Stiffness=v,"stiffness");
             Slider(control,"驱动 / 固有频率","",.96f,1.04f,(float)forceModel.Parameters.DriveRatio,v=>forceModel.Parameters.DriveRatio=v,"frequency",3);
             var drive=new Toggle("开启周期驱动"){value=forceModel.DriveEnabled};drive.RegisterValueChangedCallback(e=>forceModel.DriveEnabled=e.newValue);control.Add(drive);
-            var play=Button(control,"暂停 / 继续",()=>paused=!paused,"secondary");play.name="pause-force";
-            Button(control,"复位到远离样品",()=>{forceModel=new CantileverModel();forceGapNm=36;SetLesson(1);},"secondary");
+            Button(control,"复位到远离样品",ResetCurrentLesson,"secondary");
             stateLabel=Label(control,"","status");readingLabel=Label(control,"","readings");
-            noteLabel=Label(control,"Fdrive = 0.60 nN，f₀ = 75 kHz\n正力：排斥，负力：吸引。\nLJ 为有效教学势；保守力不等同于耗散。\n\n移动间距滑块过快可能使振动状态跳变。","body-copy");
+            noteLabel=Label(control,"Fdrive = 0.60 nN，f₀ = 75 kHz\nA 是零到峰值振幅；Q 是品质因数。\n正力排斥，负力吸引；保守力不等同于耗散。\n\n3D 循环慢放最近周期：0.6 周期/秒。\n快速移动间距可能使振动状态跳变。","body-copy");
             var a=Card("最近一个振动周期","横轴 一个驱动周期 / 纵轴 −30…30 nm");plotA=new LabPlot {Min=-30,Max=30,First=()=>forceModel.LastWaveformNm};a.Insert(1,plotA);
             var b=Card("力—距离 F(d)","横轴 4.5…15 nm  /  纵轴 −5…60 nN");plotB=new LabPlot{Min=-5,Max=60,First=()=>forceCurve};b.Insert(1,plotB);
             var c=Card("势能 U(d)","横轴 4.5…15 nm  /  纵轴 −5…30 nN·nm");plotC=new LabPlot{Min=-5,Max=30,First=()=>potentialCurve,FirstColor=new Color(1,.65f,.3f)};c.Insert(1,plotC);
             for(int i=0;i<100;i++){double d=4.5+10.5*i/99;forceCurve[i]=forceModel.Interaction.Force(d);potentialCurve[i]=forceModel.Interaction.Potential(d);}
+            profile.Min=0;profile.Max=50;profile.First=()=>forceAmplitudeHistory;profile.Second=()=>freeAmplitudeLine;profile.Third=null;
+            signalPlot.Min=-2;signalPlot.Max=2;signalPlot.First=()=>forceMeanHistory;signalPlot.Second=()=>zeroHistory;
+            historyButton.SetEnabled(false);
         }
         void BuildScanning()
         {
             modeLabel.text="03  /  让反馈跟踪表面，观察误差如何形成";
             Label(control,"闭环与扫描参数","section-title");
-            Label(control,"先在平面标定，再逐点记录实际 Z 位移。每次对照使用相同起始状态。","body-copy");
+            Label(control,"选择样品与预设。先在平面标定，再逐点记录实际 Z 位移。","body-copy");
             if(scan==null)ResetScan(new ScanSettings());
             var choices=new System.Collections.Generic.List<string>{"平滑台阶","正弦光栅","圆滑凸起"};
             var samples=new DropdownField("样品",choices,(int)scan.Settings.Sample);samples.name="sample";
             samples.RegisterValueChangedCallback(e=>{scan.Settings.Sample=(SampleKind)choices.IndexOf(e.newValue);RestartScan();});control.Add(samples);
+            var singleLine=new Toggle("仅扫描中心一条往返线"){value=scan.Settings.SingleLine,name="single-line"};
+            singleLine.RegisterValueChangedCallback(e=>{scan.Settings.SingleLine=e.newValue;RestartScan();});
             var presets=Element(control,"preset-grid");
             Preset(presets,"稳定跟踪",8,40000,.08);
             Preset(presets,"扫描过快",8,40000,.008);
             Preset(presets,"增益过低",3,1000,.08);
             Preset(presets,"增益过高",40,60000,.08);
+            control.Add(singleLine);
             Slider(control,"比例 P","nm",0,80,(float)scan.Settings.Pid.Kp,v=>scan.Settings.Pid.Kp=v,"kp");
             Slider(control,"积分 I","nm/s",0,90000,(float)scan.Settings.Pid.Ki,v=>scan.Settings.Pid.Ki=v,"ki",0);
             Slider(control,"微分 D","nm·s",0,.01f,(float)scan.Settings.Pid.Kd,v=>scan.Settings.Pid.Kd=v,"kd",4);
             Slider(control,"单向行时间","ms",8,200,(float)(scan.Settings.LineSeconds*1000),v=>{pendingLine=v/1000;},"line",0);
             Slider(control,"振幅设定 Aset/A₀","",.65f,.9f,(float)scan.Settings.SetpointRatio,v=>{pendingSetpoint=v;},"setpoint",2);
             var toggle=new Toggle("扫描时启用反馈"){value=scan.Settings.Feedback};toggle.name="feedback";toggle.RegisterValueChangedCallback(e=>scan.Settings.Feedback=e.newValue);control.Add(toggle);
+            Slider(control,"手动 Z（反馈关闭时）","nm",-6,12,(float)scan.Settings.ManualZOffsetNm,v=>scan.Settings.ManualZOffsetNm=v,"manual-z");
             var row=Element(control,"button-row");
             var restart=Button(row,"重新扫描 / 应用",RestartScan,"primary");restart.name="restart";
-            Button(row,"暂停 / 继续",()=>paused=!paused,"secondary");
             Label(control,"行时间与设定值点“应用”后生效；P / I / D 实时生效。","tiny");
             stateLabel=Label(control,"","status");readingLabel=Label(control,"","readings");
-            noteLabel=Label(control,"PI 为默认。高增益可能引起振荡；更快的扫描缩短了反馈响应时间。\n\n二维像素与数值误差来自实际采样，灰色代表尚未采样或无效。","body-copy");
+            noteLabel=Label(control,"振幅调制 AM-AFM：检测振幅 → 与设定值 Setpoint 比较 → PID → Z 台 → 间距变化。\n\n反馈维持振幅，不把瞬时光斑锁在零点。PI 为默认；D 是带滤波的微分项。\n\n手动调 Z 后可重新开启反馈。灰色像素尚未采样或无效；误差色标超出 ±2 nm 时截色。","body-copy");
+            var why=new Foldout{text="模型与符号（展开）",value=false};control.Add(why);
+            Label(why,"d = Z + q − h：Z 正向为台面回撤，q 正向为针尖向上。\n\ne = (Aset − A)/A₀\nu = Zbias + P·e + I·∫e dt − D·d(A/A₀)/dt\n\nu 是目标位置；Z 台有响应时间和行程、速度限制。形貌取实际 Z − Zref。\n\n接触模式维持静态偏转；本实验的 AM 模式维持振幅。光路零点是独立标定。","body-copy");
             AddMap("真实表面",trueTexture,"固定色标 0…5 nm");AddMap("Z 位移重建",measuredTexture,"同一色标 0…5 nm");AddMap("高度误差",errorTexture,"蓝：偏低 / 红：偏高  ·  −2…2 nm");
-            profile.First=()=>scan.Trace;profile.Second=()=>trueLine;profile.Third=()=>scan.Retrace;
+            profile.Min=-1;profile.Max=6;profile.First=()=>scan.Trace;profile.Second=()=>trueLine;profile.Third=()=>scan.Retrace;
+            signalPlot.First=()=>showErrorHistory?errorHistory:amplitudeHistory;signalPlot.Second=()=>showErrorHistory?zeroHistory:targetHistory;
+            historyButton.SetEnabled(true);
             UpdateTextures();
         }
         double pendingLine=.08,pendingSetpoint=.8;
@@ -194,7 +225,7 @@ namespace AfmLab
         {
             var b=Button(parent,text,()=>
             {
-                var s=new ScanSettings {Sample=scan.Settings.Sample,LineSeconds=line,Pid=new PidSettings{Kp=p,Ki=i}};
+                var s=new ScanSettings {Sample=scan.Settings.Sample,SingleLine=scan.Settings.SingleLine,LineSeconds=line,Pid=new PidSettings{Kp=p,Ki=i}};
                 ResetScan(s);SetLesson(2);
             },"preset");b.name="preset-"+text;
         }
@@ -206,25 +237,28 @@ namespace AfmLab
         void RestartScan()
         {
             var s=scan.Settings;
-            ResetScan(new ScanSettings{Sample=s.Sample,LineSeconds=pendingLine,SetpointRatio=pendingSetpoint,Feedback=s.Feedback,Pid=new PidSettings{Kp=s.Pid.Kp,Ki=s.Pid.Ki,Kd=s.Pid.Kd}});
+            ResetScan(new ScanSettings{Sample=s.Sample,SingleLine=s.SingleLine,ManualZOffsetNm=s.ManualZOffsetNm,LineSeconds=pendingLine,SetpointRatio=pendingSetpoint,Feedback=s.Feedback,Pid=new PidSettings{Kp=s.Pid.Kp,Ki=s.Pid.Ki,Kd=s.Pid.Kd}});
         }
         void Update()
         {
+            double before=clock.SimulatedSeconds;
             if(!paused)
             {
                 displayTime+=Time.unscaledDeltaTime;
                 if(lesson==1)
                 {
                     forceModel.GapNm=forceGapNm;
-                    clock.Advance(Time.unscaledDeltaTime,.002,1/(forceModel.Parameters.FrequencyHz*forceModel.Parameters.DriveRatio),300,()=>forceReading=forceModel.StepCycle(128));
+                    clock.Advance(Time.unscaledDeltaTime,.002*speedMultiplier,1/(forceModel.Parameters.FrequencyHz*forceModel.Parameters.DriveRatio),300,StepForceCycle);
                 }
                 else if(lesson==2 && scan!=null && scan.State!=ScanState.Complete && scan.State!=ScanState.Fault)
-                    clock.Advance(Time.unscaledDeltaTime,playback,scan.CycleSeconds,500,scan.Step);
+                    clock.Advance(Time.unscaledDeltaTime,playback*speedMultiplier,scan.CycleSeconds,500,scan.Step);
             }
-            double bend=appliedForceNn,stage=0;
-            if(lesson==1) bend=SlowWave(forceModel);
-            if(lesson==2 && scan!=null){bend=SlowWave(scan.Oscillator);stage=scan.Stage.Position-(scan.State==ScanState.Calibrating?22.676:scan.ReferenceZ);}
-            instrument.UpdateView(bend,stage,lesson!=0);
+            rateWallSeconds+=Time.unscaledDeltaTime;rateSimSeconds+=clock.SimulatedSeconds-before;
+            if(rateWallSeconds>=.5){actualRate=rateSimSeconds/rateWallSeconds;rateWallSeconds=rateSimSeconds=0;}
+            double bend=appliedForceNn,stage=28;
+            if(lesson==1){bend=SlowWave(forceModel);stage=forceGapNm;}
+            if(lesson==2 && scan!=null){bend=SlowWave(scan.Oscillator);stage=scan.Stage.Position;}
+            instrument.UpdateView(bend,stage,lesson!=0,displayZeroNm);
             instrument.SetSample(lesson==2,scan==null?SampleKind.Terrace:scan.Settings.Sample,scan == null ? .5 : scan.X,scan == null ? .5 : scan.Y);
             refreshTime+=Time.unscaledDeltaTime;
             if(refreshTime>.08f) {refreshTime=0;RefreshReadings();}
@@ -234,6 +268,12 @@ namespace AfmLab
             double[] wave=model.LastWaveformNm;
             int index=(int)(Mathf.Repeat(displayTime*.6f,1)*wave.Length);
             return wave[Math.Min(index,wave.Length-1)];
+        }
+        void StepForceCycle()
+        {
+            forceReading=forceModel.StepCycle(128);
+            forceAmplitudeRing[forceHistoryHead]=forceReading.AmplitudeNm;forceMeanRing[forceHistoryHead]=forceReading.MeanNm;
+            forceHistoryHead=(forceHistoryHead+1)%180;forceHistoryCount=Math.Min(180,forceHistoryCount+1);
         }
         void LateUpdate()
         {
@@ -255,6 +295,10 @@ namespace AfmLab
         void RefreshReadings()
         {
             if(readingLabel==null)return;
+            pauseButton.text=paused?"继续":"暂停";
+            double physicalTime=lesson==1?forceModel.TimeSeconds:scan==null?0:scan.SimulationSeconds;
+            bool scanEnded=lesson==2 && (scan.State==ScanState.Complete || scan.State==ScanState.Fault);
+            timeLabel.text=lesson==0?"静态实验 · 外力改变后立即求平衡":scanEnded?$"本次扫描已结束   ·   仿真时长 {physicalTime:F3} s":$"仿真 {physicalTime:F3} s   ·   实际 {actualRate:F3}× 实时"+(clock.PendingSeconds>.003?$"   ·   待计算 {clock.PendingSeconds*1000:F0} ms":"")+"   ·   演示速度不改变扫描行时间";
             if(lesson==0)
             {
                 var r=optical.Read(optical.DeflectionM(appliedForceNn*1e-9));
@@ -266,17 +310,33 @@ namespace AfmLab
             {
                 stateLabel.text=paused?"●  已暂停":!forceReading.Valid?"●  正则化区：当前力不作定量解释":forceReading.MinGapNm<5*Math.Pow(2,1.0/6)?"●  周期内出现排斥力":"●  吸引作用主导";
                 readingLabel.text=$"检测振幅    {forceReading.AmplitudeNm:F2} nm\n振动相位    {forceReading.PhaseRad*180/Math.PI:F1}°\n周期最小间距    {forceReading.MinGapNm:F2} nm\n周期峰值 |F|    {forceReading.PeakForceNn:F2} nN\n平均偏转    {forceReading.MeanNm:F3} nm";
+                double meanRange=.1;
+                for(int i=0;i<180;i++)
+                {
+                    forceAmplitudeHistory[i]=i<180-forceHistoryCount?double.NaN:forceAmplitudeRing[(forceHistoryHead+i)%180];
+                    forceMeanHistory[i]=i<180-forceHistoryCount?double.NaN:forceMeanRing[(forceHistoryHead+i)%180];
+                    freeAmplitudeLine[i]=forceModel.DriveEnabled?forceModel.Parameters.FreeSteadyAmplitudeNm:0;
+                    if(MathEx.Finite(forceMeanHistory[i]))meanRange=Math.Max(meanRange,Math.Ceiling(Math.Abs(forceMeanHistory[i])*10)/10);
+                }
+                profileLabel.text=$"检测振幅 0…50 nm · 橙：自由振幅 · 近 {180e3/(forceModel.Parameters.FrequencyHz*forceModel.Parameters.DriveRatio):F2} ms";
+                signalPlot.Min=-meanRange;signalPlot.Max=meanRange;
+                historyButton.text=$"平均偏转 ±{meanRange:F1} nm · 橙：未变形位置";
+                profile.MarkDirtyRepaint();signalPlot.MarkDirtyRepaint();
             }
             else
             {
                 string status=scan.State==ScanState.Calibrating?"平面标定中":scan.State==ScanState.Complete?"扫描完成":scan.State==ScanState.Fault?"已停止：模型工作域超限":"扫描中";
                 stateLabel.text="●  "+(paused?"已暂停 / ":"")+status;
-                readingLabel.text=$"A / Aset    {scan.MeasuredAmplitude:F2} / {scan.Settings.SetpointRatio*20:F2} nm\n振幅误差    {scan.AmplitudeError:+0.00;-0.00;0.00} nm\n相对 Z    {scan.Stage.Position-scan.ReferenceZ:F2} nm\n高度 RMSE    {scan.Rmse:F3} nm\n有效像素    {scan.ValidFraction*100:F1}%\n进度    {scan.CompletedPixels} / 4096";
+                string z=scan.State==ScanState.Calibrating?$"绝对 Z    {scan.Stage.Position:F2} nm（参考建立中）":$"相对 Z    {scan.Stage.Position-scan.ReferenceZ:F2} nm";
+                string quality=scan.CompletedPixels==0?"高度 RMSE    待采样":$"高度 RMSE    {scan.Rmse:F3} nm   有效 {scan.ValidFraction*100:F0}%";
+                string actuator=scan.Controller.Saturated?"位置限幅":scan.Stage.SlewLimited?"速度限幅":scan.Settings.Feedback?"反馈跟踪":"手动 Z";
+                readingLabel.text=$"A / Aset    {scan.MeasuredAmplitude:F2} / {scan.Settings.SetpointRatio*20:F2} nm\n振幅误差    {scan.AmplitudeError:+0.00;-0.00;0.00} nm\n{z}\n{quality}\n进度    {scan.CompletedPixels} / {scan.TotalPixels}\nZ 台    {actuator}";
                 if(scan.State==ScanState.Fault)noteLabel.text=scan.Fault;
                 for(int i=0;i<64;i++)trueLine[i]=scan.TrueHeight[scan.CurrentRow*64+i];
                 scan.CopyHistory(HistorySignal.Amplitude,amplitudeHistory);scan.CopyHistory(HistorySignal.Target,targetHistory);scan.CopyHistory(HistorySignal.Error,errorHistory);
                 signalPlot.Min=showErrorHistory?-4:10;signalPlot.Max=showErrorHistory?4:22;signalPlot.MarkDirtyRepaint();
-                profileLabel.text=$"第 {scan.CurrentRow+1} / 64 行   ·   青：正扫 / 紫：反扫 / 橙：真值";
+                historyButton.text=showErrorHistory?"振幅误差 −4…4 nm · 近 96 ms · 点击切换":"振幅 10…22 nm · 橙：设定值 · 近 96 ms · 点击切换";
+                profileLabel.text=$"第 {scan.CurrentRow+1} / 64 行   −1…6 nm   ·   青：正扫 / 紫：反扫 / 橙：真值";
                 if(textureRevision!=scan.Revision)UpdateTextures();profile.MarkDirtyRepaint();
             }
             if(plotA!=null)plotA.MarkDirtyRepaint();if(plotB!=null)plotB.MarkDirtyRepaint();if(plotC!=null)plotC.MarkDirtyRepaint();
@@ -338,11 +398,23 @@ namespace AfmLab
             root.Q<Slider>("force").value=0;RefreshReadings();
             bool releaseWorks=Math.Abs(appliedForceNn)<1e-12 && Math.Abs(optical.DisplacementFromZeroM(optical.Read(0)))>1e-6;
             Submit(nav[1]);yield return null;
+            Submit(pauseButton);double pausedTime=forceModel.TimeSeconds;
+            yield return null;yield return null;
+            bool pauseWorks=paused && forceModel.TimeSeconds==pausedTime;
+            speedControl.value="2×";bool speedWorks=speedMultiplier==2;
+            speedControl.value="1×";Submit(pauseButton);
             root.Q<Slider>("gap").value=26;
-            for(int i=0;i<600;i++) {forceModel.GapNm=26;forceReading=forceModel.StepCycle(128);}
+            for(int i=0;i<600;i++) {forceModel.GapNm=26;StepForceCycle();}
             RefreshReadings();yield return new WaitForEndOfFrame();CaptureFrame("02-forces.png");
             yield return null;Submit(nav[2]);yield return null;
             bool navWorks=lesson==2;
+            // Measure ordinary Update-driven playback before accelerating the remainder of the smoke test.
+            double timeBeforePlayback=scan.SimulationSeconds;
+            var frameMilliseconds=new double[120];
+            for(int i=0;i<140;i++){yield return null;if(i>=20)frameMilliseconds[i-20]=Time.unscaledDeltaTime*1000;}
+            Array.Sort(frameMilliseconds);
+            bool normalPlaybackWorks=scan.SimulationSeconds>timeBeforePlayback+.1 && scan.State!=ScanState.Fault;
+            double medianFrameMs=frameMilliseconds[60],p95FrameMs=frameMilliseconds[114];
             while(scan.State==ScanState.Calibrating || scan.State==ScanState.Scanning)
             {
                 for(int i=0;i<1500 && scan.State!=ScanState.Complete && scan.State!=ScanState.Fault;i++)scan.Step();
@@ -370,16 +442,29 @@ namespace AfmLab
             }
             UpdateTextures();RefreshReadings();yield return new WaitForEndOfFrame();CaptureFrame("05-islands.png");
             yield return null;bool sampleWorks=scan.Settings.Sample==SampleKind.Islands && scan.State==ScanState.Complete && scan.ValidFraction>.99;
+            root.Q<DropdownField>("sample").value="平滑台阶";
+            root.Q<Toggle>("single-line").value=true;
+            Submit(root.Q<Button>("preset-增益过高"));yield return null;
+            while(scan.State==ScanState.Calibrating || scan.State==ScanState.Scanning)
+            {
+                for(int i=0;i<1000 && scan.State!=ScanState.Complete && scan.State!=ScanState.Fault;i++)scan.Step();
+                RefreshReadings();yield return null;
+            }
+            bool singleWorks=scan.State==ScanState.Complete && scan.CompletedPixels==64 && scan.TotalPixels==64;
+            Submit(historyButton);RefreshReadings();
+            yield return new WaitForEndOfFrame();CaptureFrame("06-single-line-high-gain.png");yield return null;
+            Rect panelBounds=root.worldBound,readoutBounds=readoutBox.worldBound;
+            bool layoutWorks=readoutBounds.xMax<=panelBounds.xMax && readoutBounds.yMax<=panelBounds.yMax && viewport.worldBound.height>300;
             bool urpWorks=GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset && RenderPipelineManager.currentPipeline is UniversalRenderPipeline;
             bool materialsValid=true;
-            foreach(var renderer in FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+            foreach(var renderer in FindObjectsByType<Renderer>())
                 foreach(var material in renderer.sharedMaterials)
                     materialsValid&=material!=null && material.shader!=null && material.shader.name.StartsWith("Universal Render Pipeline/");
-            string report=$"{{\"urpActive\":{urpWorks.ToString().ToLowerInvariant()},\"urpMaterials\":{materialsValid.ToString().ToLowerInvariant()},\"zeroButton\":{zeroWorks.ToString().ToLowerInvariant()},\"forceSlider\":{releaseWorks.ToString().ToLowerInvariant()},\"navigation\":{navWorks.ToString().ToLowerInvariant()},\"scanComplete\":{scanWorks.ToString().ToLowerInvariant()},\"rmseNm\":{stableRmse.ToString(System.Globalization.CultureInfo.InvariantCulture)},\"fastPreset\":{fastWorks.ToString().ToLowerInvariant()},\"fastRmseNm\":{fastRmse.ToString(System.Globalization.CultureInfo.InvariantCulture)},\"sampleDropdown\":{sampleWorks.ToString().ToLowerInvariant()},\"pixels\":{scan.CompletedPixels}}}";
+            string report=$"{{\"width\":{Screen.width},\"height\":{Screen.height},\"urpActive\":{urpWorks.ToString().ToLowerInvariant()},\"urpMaterials\":{materialsValid.ToString().ToLowerInvariant()},\"zeroButton\":{zeroWorks.ToString().ToLowerInvariant()},\"forceSlider\":{releaseWorks.ToString().ToLowerInvariant()},\"pause\":{pauseWorks.ToString().ToLowerInvariant()},\"playback\":{speedWorks.ToString().ToLowerInvariant()},\"normalPlayback\":{normalPlaybackWorks.ToString().ToLowerInvariant()},\"medianFrameMs\":{medianFrameMs.ToString(System.Globalization.CultureInfo.InvariantCulture)},\"p95FrameMs\":{p95FrameMs.ToString(System.Globalization.CultureInfo.InvariantCulture)},\"navigation\":{navWorks.ToString().ToLowerInvariant()},\"scanComplete\":{scanWorks.ToString().ToLowerInvariant()},\"rmseNm\":{stableRmse.ToString(System.Globalization.CultureInfo.InvariantCulture)},\"fastPreset\":{fastWorks.ToString().ToLowerInvariant()},\"fastRmseNm\":{fastRmse.ToString(System.Globalization.CultureInfo.InvariantCulture)},\"sampleDropdown\":{sampleWorks.ToString().ToLowerInvariant()},\"singleLine\":{singleWorks.ToString().ToLowerInvariant()},\"layout\":{layoutWorks.ToString().ToLowerInvariant()}}}";
             File.WriteAllText(Path.Combine(smokeOutput,"player-smoke.json"),report);
             Debug.Log("AFM_SMOKE "+report);
             yield return new WaitForSeconds(.5f);
-            Application.Quit(urpWorks && materialsValid && zeroWorks && releaseWorks && navWorks && scanWorks && fastWorks && sampleWorks?0:2);
+            Application.Quit(urpWorks && materialsValid && zeroWorks && releaseWorks && navWorks && scanWorks && fastWorks && sampleWorks && singleWorks && layoutWorks && pauseWorks && speedWorks && normalPlaybackWorks?0:2);
         }
         static void Submit(Button button)
         {

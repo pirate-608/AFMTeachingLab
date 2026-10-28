@@ -1,1 +1,1 @@
-{"zeroButton":true,"forceSlider":true,"navigation":true,"scanComplete":true,"rmseNm":0.145515253127896,"pixels":4096}
+{"width":1600,"height":1000,"urpActive":true,"urpMaterials":true,"zeroButton":true,"forceSlider":true,"pause":true,"playback":true,"normalPlayback":true,"medianFrameMs":16.6669990867376,"p95FrameMs":16.6725050657988,"navigation":true,"scanComplete":true,"rmseNm":0.145515253127896,"fastPreset":true,"fastRmseNm":1.7260392691441,"sampleDropdown":true,"singleLine":true,"layout":true}

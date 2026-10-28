@@ -5,6 +5,12 @@
 .header-right { align-items: flex-end; padding-top: 6px; }
 .eyebrow { font-size: 11px; letter-spacing: 2px; color: rgb(83,210,192); }
 .navigation { height: 46px; flex-shrink: 0; flex-direction: row; margin-top: 8px; margin-bottom: 12px; background-color: rgb(7,18,28); }
+.transport { height: 34px; flex-shrink: 0; flex-direction: row; align-items: center; margin-bottom: 10px; }
+.transport-button { height: 28px; min-width: 68px; margin: 0 8px 0 0; background-color: rgb(23,44,59); border-width: 1px; border-color: rgb(46,72,87); border-radius: 4px; color: rgb(182,208,219); }
+.transport .unity-base-popup-field { width: 165px; margin-right: 14px; }
+.time-readout { font-size: 12px; color: rgb(144,183,194); }
+.unity-scroller--vertical { width: 11px; }
+.unity-scroller__low-button, .unity-scroller__high-button { display: none; }
 .nav { flex-grow: 1; margin: 0 8px 0 0; border-radius: 5px; border-width: 1px; border-color: rgb(35,57,72); background-color: rgb(12,29,42); color: rgb(152,178,191); font-size: 16px; }
 .nav.selected { background-color: rgb(20,62,66); border-color: rgb(63,186,169); color: rgb(202,252,241); }
 .body { flex-grow: 1; flex-direction: row; min-height: 320px; margin-bottom: 12px; }
@@ -18,6 +24,7 @@
 .sidebar { width: 338px; padding: 15px; background-color: rgb(12,29,42); border-width: 1px; border-color: rgb(33,53,66); border-radius: 8px; }
 .section-title { font-size: 18px; color: rgb(231,241,245); -unity-font-style: bold; margin-bottom: 8px; }
 .body-copy { white-space: normal; color: rgb(151,178,190); font-size: 12px; margin-bottom: 14px; }
+.unity-foldout__text { color: rgb(170,211,220); }
 .slider-wrap { margin-bottom: 11px; }
 .slider-label { flex-direction: row; justify-content: space-between; margin-bottom: 5px; }
 .slider-title { font-size: 13px; color: rgb(183,205,217); }
@@ -33,7 +40,7 @@
 .primary, .secondary, .preset { min-height: 32px; margin: 3px 4px 3px 0; border-radius: 4px; border-width: 1px; font-size: 12px; }
 .primary { background-color: rgb(29,104,96); border-color: rgb(57,158,141); color: rgb(230,253,246); flex-grow: 1; }
 .secondary { background-color: rgb(23,44,59); border-color: rgb(46,72,87); color: rgb(182,208,219); flex-grow: 1; }
-.preset-grid { flex-direction: row; flex-wrap: wrap; margin-top: 8px; margin-bottom: 8px; }
+.preset-grid { flex-direction: row; flex-wrap: wrap; margin-top: 2px; margin-bottom: 2px; }
 .preset { width: 47%; background-color: rgb(24,52,66); border-color: rgb(51,87,100); color: rgb(181,223,224); }
 Button:hover { border-color: rgb(95,211,196); }
 Button:focus { border-color: rgb(222,239,210); }

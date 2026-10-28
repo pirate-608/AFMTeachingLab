@@ -6,15 +6,17 @@ namespace AfmLab
 {
     public sealed class InstrumentView : MonoBehaviour
     {
-        Transform beamRoot,mirror,tip,sample,spot;
+        Transform beamRoot,mirror,tip,sample,spot,piezoBody;
+        readonly Transform[] electrodes=new Transform[7];
         GameObject sampleSurface;
         Mesh surfaceMesh;
         SampleKind lastSample=(SampleKind)(-1);
         Mesh beam;
         Vector3[] vertices;
-        LineRenderer incident,reflected,reference;
+        LineRenderer incident,reflected,reference,normalIndicator;
         Material silver,graphite,teal,red,gold;
         const int Segments=48;
+        const float NmDisplay=.016f;
         public Camera LabCamera { get; private set; }
         public void Create()
         {
@@ -26,13 +28,13 @@ namespace AfmLab
             Box("Optical table",new Vector3(.2f,-1.8f,0),new Vector3(9,.28f,4.5f),graphite);
             Box("Fixed clamp",new Vector3(-3.0f,.2f,0),new Vector3(1.1f,.65f,1.1f),silver);
             Box("Clamp support",new Vector3(-3.1f,-.6f,0),new Vector3(.5f,1.6f,.65f),graphite);
-            Box("Z piezo",new Vector3(1.3f,-1.35f,0),new Vector3(1.7f,.5f,1.7f),silver);
+            piezoBody=Box("Z piezo",new Vector3(1.3f,-1.35f,0),new Vector3(1.7f,.5f,1.7f),silver).transform;
             sample=new GameObject("XY and Z sample stage").transform;sample.SetParent(transform,false);
             var substrate=Box("Sample substrate",Vector3.zero,new Vector3(2.5f,.15f,2),teal);substrate.transform.SetParent(sample,false);
             sampleSurface=new GameObject("Measured sample topography");sampleSurface.transform.SetParent(sample,false);
             surfaceMesh=new Mesh{name="Analytic sample height field"};sampleSurface.AddComponent<MeshFilter>().sharedMesh=surfaceMesh;
             sampleSurface.AddComponent<MeshRenderer>().sharedMaterial=teal;sampleSurface.SetActive(false);
-            for(int i=0;i<7;i++)Box("Piezo electrode",new Vector3(1.3f,-1.1f-i*.055f,0),new Vector3(1.73f,.015f,1.73f),graphite);
+            for(int i=0;i<7;i++)electrodes[i]=Box("Piezo electrode",new Vector3(1.3f,-1.1f-i*.055f,0),new Vector3(1.73f,.015f,1.73f),graphite).transform;
             beamRoot=new GameObject("Cantilever mesh").transform;beamRoot.SetParent(transform,false);
             beam= new Mesh {name="Cantilever deformation mesh"};beam.MarkDynamic();
             vertices=new Vector3[(Segments+1)*4];int[] triangles=new int[Segments*24];int ti=0;
@@ -55,6 +57,7 @@ namespace AfmLab
             incident=Line("Incident beam",red,.025f);
             reflected=Line("Reflected beam",red,.025f);
             reference=Line("Zero reflection",Material("Zero ray",new Color(.18f,.55f,.52f),0,true),.012f);
+            normalIndicator=Line("Local surface normal",Material("Surface normal",new Color(.45f,.75f,1),0,true),.014f);
             reference.SetPositions(new[]{new Vector3(1.65f,.08f,0),new Vector3(4.05f,3.15f,0)});
             var cameraGo=new GameObject("AFM Camera");cameraGo.transform.SetParent(transform,false);
             LabCamera=cameraGo.AddComponent<Camera>();LabCamera.tag="MainCamera";
@@ -66,17 +69,17 @@ namespace AfmLab
             var lightGo=new GameObject("Key light");lightGo.transform.SetParent(transform,false);lightGo.transform.rotation=Quaternion.Euler(45,-35,0);
             var light=lightGo.AddComponent<Light>();light.type=LightType.Directional;light.intensity=1.35f;light.color=new Color(.8f,.9f,1);
             RenderSettings.ambientLight=new Color(.3f,.38f,.45f);
-            UpdateView(0,0,false);
+            UpdateView(0,28,false);
         }
         public void SetSideView(bool side)
         {
             LabCamera.transform.position=side?new Vector3(.5f,1,-16):new Vector3(7,6,-13);
             LabCamera.transform.LookAt(new Vector3(.5f,.8f,0));
         }
-        public void UpdateView(double tipNm,double stageNm,bool dynamicMode)
+        public void UpdateView(double tipNm,double gapNm,bool dynamicMode,double zeroNm=0)
         {
             // This is explicitly the magnified structure illustration, never a source of physical readings.
-            float bend=(float)tipNm*.016f;
+            float bend=(float)tipNm*NmDisplay;
             UpdateBeam(bend,dynamicMode);
             double shape=dynamicMode?OpticalLeverModel.ModeShape(.95):OpticalLeverModel.StaticShape(.95);
             double slope=dynamicMode?OpticalLeverModel.ModeSlopeFactor(.95):OpticalLeverModel.StaticSlopeFactor(.95);
@@ -84,13 +87,30 @@ namespace AfmLab
             float angle=Mathf.Atan((float)(bend*slope)/4.8f)*Mathf.Rad2Deg;
             mirror.localPosition=hit;mirror.localRotation=Quaternion.Euler(0,0,angle);
             tip.localPosition=new Vector3(1.9f,bend-.05f,0);
-            Vector3 samplePosition=sample.localPosition;samplePosition.y=-.85f-(float)stageNm*.07f;sample.localPosition=samplePosition;
+            // The tip apex is at -0.57 + q*NmDisplay. Surface top is at -0.57 - (Z-h)*NmDisplay.
+            // Use one vertical magnification for q, Z and h so the schematic cannot invent penetration.
+            Vector3 samplePosition=sample.localPosition;samplePosition.y=-.65f-(float)gapNm*NmDisplay;sample.localPosition=samplePosition;
+            float piezoTop=samplePosition.y-.075f,piezoBottom=-1.66f;
+            piezoBody.localPosition=new Vector3(1.3f,(piezoTop+piezoBottom)*.5f,0);
+            piezoBody.localScale=new Vector3(1.7f,Mathf.Max(.05f,piezoTop-piezoBottom),1.7f);
+            for(int i=0;i<7;i++)electrodes[i].localPosition=new Vector3(1.3f,Mathf.Lerp(piezoBottom,piezoTop,(i+.5f)/7),0);
             var source=new Vector3(-1.35f,3.5f,0);
             var ray=Vector3.Reflect((hit-source).normalized,new Vector3(-Mathf.Sin(angle*Mathf.Deg2Rad),Mathf.Cos(angle*Mathf.Deg2Rad),0));
             var center=new Vector3(4.05f,3.15f,0);var normal=new Vector3(-.6f,-.8f,0);
             float distance=Vector3.Dot(center-hit,normal)/Vector3.Dot(ray,normal);
             var end=hit+ray*distance;
             incident.SetPositions(new[]{source,hit});reflected.SetPositions(new[]{hit,end});spot.position=end;
+            normalIndicator.SetPositions(new[]{hit,hit+new Vector3(-Mathf.Sin(angle*Mathf.Deg2Rad),Mathf.Cos(angle*Mathf.Deg2Rad),0)*.55f});
+            reference.enabled=!dynamicMode;
+            if(!dynamicMode)
+            {
+                float zeroBend=(float)zeroNm*NmDisplay;
+                var zeroHit=new Vector3(1.65f,zeroBend*(float)OpticalLeverModel.StaticShape(.95)+.08f,0);
+                float zeroAngle=Mathf.Atan(zeroBend*(float)OpticalLeverModel.StaticSlopeFactor(.95)/4.8f);
+                var zeroRay=Vector3.Reflect((zeroHit-source).normalized,new Vector3(-Mathf.Sin(zeroAngle),Mathf.Cos(zeroAngle),0));
+                float zeroDistance=Vector3.Dot(center-zeroHit,normal)/Vector3.Dot(zeroRay,normal);
+                reference.SetPositions(new[]{zeroHit,zeroHit+zeroRay*zeroDistance});
+            }
         }
         public void SetSample(bool scanning,SampleKind kind,double x=.5,double y=.5)
         {
@@ -104,7 +124,7 @@ namespace AfmLab
             for(int row=0;row<=count;row++)for(int col=0;col<=count;col++)
             {
                 double u=(double)col/count,v=(double)row/count;
-                points[row*(count+1)+col]=new Vector3((float)u*2.5f-1.25f,.08f+(float)Samples.Height(kind,u,v)*.07f,(float)v*2-1);
+                points[row*(count+1)+col]=new Vector3((float)u*2.5f-1.25f,.08f+(float)Samples.Height(kind,u,v)*NmDisplay,(float)v*2-1);
                 if(row<count && col<count)
                 {
                     int a=row*(count+1)+col,b=a+1,c=a+count+1,d=c+1;
